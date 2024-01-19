@@ -33,7 +33,7 @@
     <!-- Target: run tp1 Server -->
     <target name="server" depends="compile">
         <echo message="Running server program..."/>
-        <java classname="Server" fork="true">
+        <java classname="ServerFTP" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
@@ -43,7 +43,7 @@
     <!-- Target: run tp1 Client -->
     <target name="client" depends="compile">
         <echo message="Running client program..."/>
-        <java classname="Client" fork="true">
+        <java classname="ClientFTP" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
