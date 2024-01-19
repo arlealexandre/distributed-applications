@@ -31,9 +31,9 @@
     </target>
 
     <!-- Target: run tp1 Server -->
-    <target name="server" depends="compile">
-        <echo message="Running server program..."/>
-        <java classname="Server" fork="true">
+    <target name="ServerBaby" depends="compile">
+        <echo message="Running server baby program..."/>
+        <java classname="ServerBaby" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
@@ -41,9 +41,9 @@
     </target>
 
     <!-- Target: run tp1 Client -->
-    <target name="client" depends="compile">
-        <echo message="Running client program..."/>
-        <java classname="Client" fork="true">
+    <target name="ClientBaby" depends="compile">
+        <echo message="Running client baby program..."/>
+        <java classname="ClientBaby" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
