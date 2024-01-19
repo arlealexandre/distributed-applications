@@ -30,8 +30,8 @@
         </javac>
     </target>
 
-    <!-- Target: run tp1 Server -->
-    <target name="server" depends="compile">
+    <!-- Target: run tp1 Server FTP -->
+    <target name="ServerFTP" depends="compile">
         <echo message="Running server program..."/>
         <java classname="ServerFTP" fork="true">
             <classpath>
@@ -40,10 +40,30 @@
         </java>
     </target>
 
-    <!-- Target: run tp1 Client -->
-    <target name="client" depends="compile">
+    <!-- Target: run tp1 Server Baby -->
+    <target name="ServerBaby" depends="compile">
+        <echo message="Running server baby program..."/>
+        <java classname="ServerBaby" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run tp1 Client FTP -->
+    <target name="ClientFTP" depends="compile">
         <echo message="Running client program..."/>
         <java classname="ClientFTP" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run tp1 Client Baby -->
+    <target name="ClientBaby" depends="compile">
+        <echo message="Running client baby program..."/>
+        <java classname="ClientBaby" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
