@@ -14,7 +14,7 @@ public class ServerFTP {
             System.out.println("FTP server is waiting FTP client...");
             while (true) {
                 Socket soc = listenSoc.accept();
-                System.out.println(soc.getLocalSocketAddress().toString()+" is now connected to FTP server");
+                System.out.println("\033[0;32m"+soc.getInetAddress().toString()+" is now connected to FTP server\033[0m");
             }
         } catch (IOException e) {
             e.printStackTrace();
