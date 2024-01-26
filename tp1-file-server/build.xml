@@ -111,4 +111,14 @@
         </java>
     </target>
 
+    <!-- Target: run tp1 MultiThreaded Server FTP with ProdCons buffer -->
+    <target name="ServerFTPProdCons" depends="compile">
+        <echo message="Running server program..."/>
+        <java classname="ServerFTPThreadProdCons" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
 </project>
