@@ -1,6 +1,7 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,11 +29,13 @@ public class ServerFTP {
                 DataOutputStream dos = new DataOutputStream(os);
 
                 boolean fileSend = false;
+                File f = null;
+                String fileWanted = "";
 
                 while (!fileSend) {
-                    String fileWanted = "./serverfiles/" + dis.readUTF();
+                    fileWanted = "./serverfiles/" + dis.readUTF();
 
-                    File f = new File(fileWanted);
+                    f = new File(fileWanted);
 
                     if (f.exists()) {
                         fileSend = true;
@@ -44,8 +47,16 @@ public class ServerFTP {
                     }
                 }
 
-                dos.writeInt(10);
+                FileInputStream fis = new FileInputStream(fileWanted);
+                byte[] content = fis.readAllBytes();
+
+                dos.writeInt(content.length);
+                dos.write(content);
+
                 System.out.println("Fichier envoyer");
+
+                fis.close();
+                listenSoc.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
