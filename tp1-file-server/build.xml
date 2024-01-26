@@ -70,4 +70,24 @@
         </java>
     </target>
 
+    <!-- Target: run tp1 Client FTP Optimized -->
+    <target name="ClientFTPOptimized" depends="compile">
+        <echo message="Running client program..."/>
+        <java classname="ClientFTPOptimized" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run tp1 Server FTP -->
+    <target name="ServerFTPOptimized" depends="compile">
+        <echo message="Running server program..."/>
+        <java classname="ServerFTPOptimized" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
 </project>
