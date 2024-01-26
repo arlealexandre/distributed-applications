@@ -50,13 +50,15 @@ public class ServerFTP {
                 FileInputStream fis = new FileInputStream(fileWanted);
                 byte[] content = fis.readAllBytes();
 
+                /*Ecriture de la longeur en octet du fichier */
                 dos.writeInt(content.length);
+
+                /*Ecriture du fichier sur la socket */
                 dos.write(content);
 
                 System.out.println("Fichier envoyer");
-
+                
                 fis.close();
-                listenSoc.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

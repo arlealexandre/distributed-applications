@@ -21,10 +21,8 @@ public class ClientFTP {
             System.out.println("------------------------------------------------------------------------------------");
             System.out.println("\033[0;32mYou're now connected to "+SERVER_HOST+":"+SERVER_PORT+" FTP server\033[0m");
 
-            /* Get the filename from user input */
-            System.out.println("Enter a filename: ");
-            Scanner sc = new Scanner(System.in);
-            String filename = sc.nextLine();
+            Scanner sc = new Scanner(System.in);;
+            String filename = "";
 
             /* Writing the filename into the socket stream to server */
             OutputStream os = soc.getOutputStream();
@@ -34,31 +32,44 @@ public class ClientFTP {
             DataInputStream dis = new DataInputStream(is);
 
             boolean requestOk = false;
-            int nbLineFile = 0;
+            int nbByteFile = 0;
 
             while(!requestOk) {
-                dos.writeUTF(filename);
-                nbLineFile = dis.readInt();
+                System.out.println("Enter a filename: ");
+                filename = sc.nextLine();
                 
-                if (nbLineFile != -1) {
+                /*Envoie du nom du fichier souhaiter au serveur*/
+                dos.writeUTF(filename);
+
+                /*Reception du nombre de byte du fichier souhaiter (-1 = fichier inexistant) */
+                nbByteFile = dis.readInt();
+                
+                if (nbByteFile != -1) {
                     requestOk = true;
+                    sc.close();
                 } else {
                     System.out.println("Message from server: the file named '"+filename+"' does not exists.");
                     System.out.println("------------");
-                    System.out.println("Enter a filename: ");
-                    sc = new Scanner(System.in);
-                    filename = sc.nextLine();
                 }
+
+                
             }
 
             if (requestOk) {
                 File tempFile = new File("./localfiles/"+filename);
-                byte[] fileBytes = dis.readAllBytes();
+                byte[] fileBytes = dis.readNBytes(nbByteFile);
                 FileOutputStream fo = new FileOutputStream(tempFile);
+                
                 fo.write(fileBytes);
-                if (tempFile.createNewFile()) {
+                
+                if (tempFile.exists()) {
                     System.out.println(tempFile.getName()+" has been created");
+                } else {
+                    System.err.println("Error while creating " + tempFile.getName());
                 }
+
+                fo.close();
+                soc.close();
             }
 
         } catch (IOException e) {
