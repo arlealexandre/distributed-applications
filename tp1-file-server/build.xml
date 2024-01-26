@@ -80,4 +80,14 @@
         </java>
     </target>
 
+    <!-- Target: run tp1 Server FTP Thread -->
+    <target name="ServerFTPThread" depends="compile">
+        <echo message="Running multithreaded server program..."/>
+        <java classname="ServerFTPThread" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
 </project>
