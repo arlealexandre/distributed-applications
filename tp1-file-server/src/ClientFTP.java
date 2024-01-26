@@ -1,12 +1,14 @@
 import java.io.DataOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class ClientFTP {
 
-    private static final int SERVER_PORT = 4320;
+    private static final int SERVER_PORT = 4242;
     private static final String SERVER_HOST = "localhost";
 
     public static void main(String[] args) {
@@ -24,7 +26,28 @@ public class ClientFTP {
             /* Writing the filename into the socket stream to server */
             OutputStream os = soc.getOutputStream();
             DataOutputStream dos = new DataOutputStream(os);
-            dos.writeUTF(filename);
+
+            InputStream is = soc.getInputStream();
+            DataInputStream dis = new DataInputStream(is);
+
+            boolean requestOk = false;
+            int nbLineFile = 0;
+
+            while(!requestOk) {
+                dos.writeUTF(filename);
+                nbLineFile = dis.readInt();
+                
+                if (nbLineFile != -1) {
+                    requestOk = true;
+                } else {
+                    System.out.println("Ce fichier n'existe pas.");
+                    sc = new Scanner(System.in);
+                    filename = sc.nextLine();
+                }
+            }
+
+            
+            
             
         } catch (IOException e) {
             e.printStackTrace();
