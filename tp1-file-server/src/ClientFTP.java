@@ -1,4 +1,6 @@
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,7 @@ public class ClientFTP {
         try {
             Socket soc = new Socket(SERVER_HOST, SERVER_PORT); // Creation of client socket
 
+            System.out.println("------------------------------------------------------------------------------------");
             System.out.println("\033[0;32mYou're now connected to "+SERVER_HOST+":"+SERVER_PORT+" FTP server\033[0m");
 
             /* Get the filename from user input */
@@ -40,15 +43,24 @@ public class ClientFTP {
                 if (nbLineFile != -1) {
                     requestOk = true;
                 } else {
-                    System.out.println("Ce fichier n'existe pas.");
+                    System.out.println("Message from server: the file named '"+filename+"' does not exists.");
+                    System.out.println("------------");
+                    System.out.println("Enter a filename: ");
                     sc = new Scanner(System.in);
                     filename = sc.nextLine();
                 }
             }
 
-            
-            
-            
+            if (requestOk) {
+                File tempFile = new File("./localfiles/"+filename);
+                byte[] fileBytes = dis.readAllBytes();
+                FileOutputStream fo = new FileOutputStream(tempFile);
+                fo.write(fileBytes);
+                if (tempFile.createNewFile()) {
+                    System.out.println(tempFile.getName()+" has been created");
+                }
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
