@@ -7,11 +7,21 @@
     <!-- Properties -->
     <property name="src" location="src"/>
     <property name="build" location="build"/>
+    <property name="localfiles" location="localfiles"/>
 
     <!-- Target: clean -->
     <target name="clean"> 
         <echo message="Cleaning ./build..."/>
         <delete dir="${build}"/>
+    </target>
+
+    <!-- Target: clear-localfiles -->
+    <target name="clear-localfiles">
+        <delete>
+            <fileset dir="${localfiles}">
+                <include name="*"/>
+            </fileset>
+        </delete>
     </target>
 
     <!-- Target: init -->
