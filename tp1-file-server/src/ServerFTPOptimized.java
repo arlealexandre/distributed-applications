@@ -17,6 +17,10 @@ public class ServerFTPOptimized {
     public static void main(String[] args) {
         try {
             ServerSocket listenSoc = new ServerSocket(PORT, BACKLOG);
+            /*Close the socket on shutdown */
+            Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+                try { listenSoc.close(); } catch (IOException e) {}}});
+
             System.out.println("FTP server is waiting FTP client...");
             while (true) {
                 Socket soc = listenSoc.accept();
