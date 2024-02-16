@@ -121,4 +121,24 @@
         </java>
     </target>
 
+    <!-- Target: run tp1 Client FTP Securized -->
+    <target name="ClientFTPSecurized" depends="compile">
+        <echo message="Running client program..."/>
+        <java classname="ClientFTPSecurized" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run tp1 Server FTP Securized -->
+    <target name="ServerFTPSecurized" depends="compile">
+        <echo message="Running server program..."/>
+        <java classname="ServerFTPSecurized" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
 </project>
