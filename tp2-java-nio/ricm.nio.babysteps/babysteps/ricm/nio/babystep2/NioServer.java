@@ -31,6 +31,8 @@ public class NioServer {
 	
 	// Reader Automata
 	private ReaderAutomata readerAutomata;
+	
+	private WriterAutomata wAutomata;
 
 	// NIO selector
 	private Selector selector;
@@ -115,6 +117,8 @@ public class NioServer {
 
 		// register a READ interest on sc to receive the message sent by the client
 		sc.register(selector, SelectionKey.OP_READ);
+		
+		this.wAutomata = new WriterAutomata(sc);
 	}
 
 	/**
@@ -135,14 +139,8 @@ public class NioServer {
 	private void handleWrite(SelectionKey key) throws IOException {
 		assert (skey != key);
 		assert (ssc != key.channel());
-
-		// get the socket channel for the client to whom we
-		// need to send something
-		SocketChannel sc = (SocketChannel) key.channel();
-		sc.write(outBuffer);
 		
-		// remove the write interest & set READ interest
-		key.interestOps(SelectionKey.OP_READ);
+		this.wAutomata.handleWrite(key);
 	}
 
 	/**
@@ -157,7 +155,14 @@ public class NioServer {
 
 		// register a write interest for the given client socket channel
 		SelectionKey key = sc.keyFor(selector);
-		key.interestOps(SelectionKey.OP_WRITE);
+		
+		byte[] temp = new byte[count];
+		
+		for (int i = offset; i < offset + count; i++) {
+			temp[i - offset] = data[i];
+		}
+		
+		this.wAutomata.sendMsg(temp, key);
 	}
 	
 	
