@@ -31,10 +31,12 @@ public class NioClient {
 
 	// NIO selector
 	private Selector selector;
+	
+	// Reader Automata
+	private ReaderAutomata readerAutomata;
 
 	// Buffers for outgoing messages & incoming messages
 	ByteBuffer outBuffer;
-	ByteBuffer inBuffer;
 
 	// The message to send to the server
 	byte[] first;  
@@ -65,7 +67,9 @@ public class NioClient {
 
 		// register a CONNECT interest for channel sc 
 		skey = sc.register(selector, SelectionKey.OP_CONNECT);
-
+		
+		readerAutomata = new ReaderAutomata();
+		
 		// request to connect to the server
 		InetAddress addr;
 		addr = InetAddress.getByName(serverName);
@@ -92,7 +96,7 @@ public class NioClient {
 				if (key.isValid() && key.isAcceptable())   // accept event
 					handleAccept(key);
 				if (key.isValid() && key.isReadable())     // read event
-					handleRead(key);
+					readerAutomata.handleRead(key);
 				if (key.isValid() && key.isWritable())     // write event
 					handleWrite(key);
 				if (key.isValid() && key.isConnectable())  // connect event
@@ -127,51 +131,7 @@ public class NioClient {
 		send(first, 0, first.length);
 	}
 
-	/**
-	 * Handle data to read
-	 * 
-	 * @param the key of the channel on which the incoming data waits to be received
-	 */
-	private void handleRead(SelectionKey key) throws IOException {
-		assert (this.skey == key);
-		assert (sc == key.channel());
 
-		// Let's read the message
-		inBuffer = ByteBuffer.allocate(INBUF_SZ);
-		int n = sc.read(inBuffer);
-		if (n == -1) {
-			key.cancel();  // communication with server is broken
-			sc.close(); 
-			return;
-		}
-
-		byte[] data = new byte[inBuffer.position()];
-		inBuffer.rewind();
-		inBuffer.get(data);
-
-		// Let's make sure we read the message we sent to the server
-		byte[] md5 = md5(data);
-		if (!md5check(digest, md5)) {
-			System.out.println("Checksum Error!");
-			return;
-		}
-
-		// Let's print the received message, assuming it is a UTF-8 string
-		// since it is the format of the first message sent to the server.
-		String msg = new String(data, Charset.forName("UTF-8"));
-		System.out.println("NioClient received msg["+nloops+"]: " + msg);
-
-		// send back the received message
-		byte[] tmp = new byte[2*data.length];
-		System.arraycopy(data, 0, tmp, 0, data.length);
-		System.arraycopy(data, 0, tmp, data.length, data.length);
-		digest = md5(tmp);
-		//send(data, 0, data.length);
-		send(tmp, 0, tmp.length);
-		
-		if (nloops++ > 500)
-			System.exit(0);
-	}
 
 	/**
 	 * Handle data to write

@@ -28,6 +28,9 @@ public class NioServer {
 	
 	// The selection key to register events of interests on the server channel
 	private SelectionKey skey;
+	
+	// Reader Automata
+	private ReaderAutomata readerAutomata;
 
 	// NIO selector
 	private Selector selector;
@@ -50,6 +53,8 @@ public class NioServer {
 		// create a new non-blocking server socket channel
 		ssc = ServerSocketChannel.open();
 		ssc.configureBlocking(false);
+		
+		readerAutomata = new ReaderAutomata(ssc);
 
 		// bind the server socket to the given address and port
 		InetAddress hostAddress;
@@ -84,7 +89,7 @@ public class NioServer {
 				if (key.isValid() && key.isAcceptable())  // accept event
 					handleAccept(key);
 				if (key.isValid() && key.isReadable())    // read event
-					handleRead(key);
+					readerAutomata.handleRead(key);
 				if (key.isValid() && key.isWritable())    // write event
 					handleWrite(key);
 				if (key.isValid() && key.isConnectable())  // connect event
@@ -120,38 +125,6 @@ public class NioServer {
 	 */
 	private void handleConnect(SelectionKey key) throws IOException {
 		throw new Error("Unexpected connect");
-	}
-
-	/**
-	 * Handle data to read 
-	 * 
-	 * @param the key of the channel on which the incoming data waits to be received
-	 */
-	private void handleRead(SelectionKey key) throws IOException {
-		assert (skey != key);
-		assert (ssc != key.channel());
-
-		// get the socket channel on which the incoming data waits to be received
-		SocketChannel sc = (SocketChannel) key.channel();
-
-		inBuffer = ByteBuffer.allocate(INBUFFER_SZ);
-		int n = sc.read(inBuffer);
-		if (n == -1) {
-			key.cancel();
-			sc.close(); 
-			return;
-		}
-
-		// process the received data
-		byte[] data = new byte[inBuffer.position()];
-		inBuffer.rewind();
-		inBuffer.get(data,0,data.length);
-
-		String msg = new String(data,Charset.forName("UTF-8"));
-		System.out.println("NioServer received: " + msg);
-
-		// echo back the same message to the client
-		send(sc, data, 0, data.length);		
 	}
 
 	/**
