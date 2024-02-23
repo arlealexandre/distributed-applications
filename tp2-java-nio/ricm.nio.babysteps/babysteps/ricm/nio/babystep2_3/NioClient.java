@@ -1,4 +1,4 @@
-package ricm.nio.babystep3;
+package ricm.nio.babystep2_3;
 
 import java.io.IOException;
 import java.io.PrintStream;

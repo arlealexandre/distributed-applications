@@ -1,4 +1,4 @@
-package ricm.nio.babystep2;
+package ricm.nio.babystep2_3;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -29,11 +29,6 @@ public class NioServer {
 	// The selection key to register events of interests on the server channel
 	private SelectionKey skey;
 	
-	// Reader Automata
-	private ReaderAutomata readerAutomata;
-	
-	private WriterAutomata wAutomata;
-
 	// NIO selector
 	private Selector selector;
 	
@@ -55,9 +50,6 @@ public class NioServer {
 		// create a new non-blocking server socket channel
 		ssc = ServerSocketChannel.open();
 		ssc.configureBlocking(false);
-		
-		readerAutomata = new ReaderAutomata();
-		wAutomata = new WriterAutomata();
 
 		// bind the server socket to the given address and port
 		InetAddress hostAddress;
@@ -92,14 +84,15 @@ public class NioServer {
 				if (key.isValid() && key.isAcceptable())  // accept event
 					handleAccept(key);
 				if (key.isValid() && key.isReadable())    // read event
-					readerAutomata.handleRead(key);
+					((Automata) key.attachment()).getReaderAutomata().handleRead(key);
 				if (key.isValid() && key.isWritable())    // write event
-					wAutomata.handleWrite(key);
+					((Automata) key.attachment()).getWriterAutomata().handleWrite(key);
 				if (key.isValid() && key.isConnectable())  // connect event
 					handleConnect(key);
 			}
 		}
 	}
+
 
 	/**
 	 * Handle an accept event - accept the connection and make it non-blocking
@@ -117,7 +110,9 @@ public class NioServer {
 		sc.configureBlocking(false);
 		
 		// register a READ interest on sc to receive the message sent by the client
-		sc.register(selector, SelectionKey.OP_READ);
+		SelectionKey k = sc.register(selector, SelectionKey.OP_READ);
+		
+		k.attach(new Automata(new ReaderAutomata(), new WriterAutomata()));
 	}
 
 	/**
@@ -149,7 +144,7 @@ public class NioServer {
 			temp[i - offset] = data[i];
 		}
 		
-		this.wAutomata.sendMsg(temp, key);
+		((Automata) key.attachment()).getWriterAutomata().sendMsg(temp, key);
 	}
 	
 	
