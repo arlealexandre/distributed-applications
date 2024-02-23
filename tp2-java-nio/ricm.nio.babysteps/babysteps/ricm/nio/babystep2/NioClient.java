@@ -34,6 +34,7 @@ public class NioClient {
 	
 	// Reader Automata
 	private ReaderAutomata readerAutomata;
+	private WriterAutomata writerAutomata;
 
 	// Buffers for outgoing messages & incoming messages
 	ByteBuffer outBuffer;
@@ -69,6 +70,7 @@ public class NioClient {
 		skey = sc.register(selector, SelectionKey.OP_CONNECT);
 		
 		readerAutomata = new ReaderAutomata();
+		writerAutomata = new WriterAutomata();
 		
 		// request to connect to the server
 		InetAddress addr;
@@ -98,7 +100,7 @@ public class NioClient {
 				if (key.isValid() && key.isReadable())     // read event
 					readerAutomata.handleRead(key);
 				if (key.isValid() && key.isWritable())     // write event
-					handleWrite(key);
+					writerAutomata.handleWrite(key);
 				if (key.isValid() && key.isConnectable())  // connect event
 					handleConnect(key);
 			}
@@ -126,41 +128,7 @@ public class NioClient {
 		sc.finishConnect();
 		skey.interestOps(SelectionKey.OP_READ);
 
-		// once connected, send a message to the server
-		digest = md5(first);
-		send(first, 0, first.length);
 	}
-
-
-
-	/**
-	 * Handle data to write
-	 * assume the data to write is in outBuffer
-	 * @param the key of the channel on which data can be sent
-	 */
-	private void handleWrite(SelectionKey key) throws IOException {
-		assert (this.skey == key);
-		assert (sc == key.channel());
-		// write the output buffer to the socket channel
-		sc.write(outBuffer);
-		// remove the write interest & set READ interest
-		key.interestOps(SelectionKey.OP_READ);
-	}
-
-	/**
-	 * Request to send data
-	 * 
-	 * @param data: the byte array that should be sent
-	 */
-	public void send(byte[] data, int offset, int count) {
-		// this is not optimized, we should try to reuse the same ByteBuffer
-		outBuffer = ByteBuffer.wrap(data, offset, count);
-
-		// register a WRITE interest
-		skey.interestOps(SelectionKey.OP_WRITE);
-	}
-
-
 
 	public static void main(String args[]) throws IOException {
 		int serverPort = NioServer.DEFAULT_SERVER_PORT;

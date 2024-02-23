@@ -56,7 +56,8 @@ public class NioServer {
 		ssc = ServerSocketChannel.open();
 		ssc.configureBlocking(false);
 		
-		readerAutomata = new ReaderAutomata(ssc);
+		readerAutomata = new ReaderAutomata();
+		wAutomata = new WriterAutomata();
 
 		// bind the server socket to the given address and port
 		InetAddress hostAddress;
@@ -93,7 +94,7 @@ public class NioServer {
 				if (key.isValid() && key.isReadable())    // read event
 					readerAutomata.handleRead(key);
 				if (key.isValid() && key.isWritable())    // write event
-					handleWrite(key);
+					wAutomata.handleWrite(key);
 				if (key.isValid() && key.isConnectable())  // connect event
 					handleConnect(key);
 			}
@@ -116,9 +117,11 @@ public class NioServer {
 		sc.configureBlocking(false);
 
 		// register a READ interest on sc to receive the message sent by the client
-		sc.register(selector, SelectionKey.OP_READ);
+		sc.register(selector, SelectionKey.OP_WRITE);
 		
-		this.wAutomata = new WriterAutomata(sc);
+		String message = "Hello";
+		
+		this.send(sc, message.getBytes(), 0, message.getBytes().length);
 	}
 
 	/**

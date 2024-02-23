@@ -12,12 +12,10 @@ public class WriterAutomata {
 	ByteBuffer bb;
 	byte[][] pendingMsg;
 	State currentState;
-	SocketChannel sc;
 	
-	WriterAutomata(SocketChannel sc) {
+	WriterAutomata() {
 		this.pendingMsg = new byte[0][];
 		this.currentState = State.WRITE_IDLE;
-		this.sc = sc;
 	}
 	
 	
@@ -46,6 +44,7 @@ public class WriterAutomata {
 	
 	
 	void handleWrite(SelectionKey key) throws IOException {
+		SocketChannel sc = (SocketChannel) key.channel();
 		switch(this.currentState) {
 		case WRITE_LENGTH:
 			sc.write(bb);

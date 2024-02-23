@@ -24,6 +24,7 @@ public class ReaderAutomata {
 			case READ_LENGTH:
 				
 				n = sc.read(buffer);
+				System.out.println("Nb read for length = "+n);
 				
 				if (n == -1) {
 					key.cancel();
@@ -32,6 +33,7 @@ public class ReaderAutomata {
 				}
 				
 				if (buffer.remaining()==0) {
+					buffer.rewind();
 					messageLength = buffer.getInt();
 					buffer = ByteBuffer.allocate(messageLength);
 					currentState = State.READ_MESSAGE;
@@ -51,6 +53,7 @@ public class ReaderAutomata {
 					byte[] data = new byte[buffer.position()];
 					buffer.rewind();
 					buffer.get(data);
+					buffer = ByteBuffer.allocate(4);
 					System.out.println("Received message: "+data.toString());
 				}
 				break;
