@@ -115,13 +115,9 @@ public class NioServer {
 		// get a client channel as result
 		sc = ssc.accept();
 		sc.configureBlocking(false);
-
+		
 		// register a READ interest on sc to receive the message sent by the client
-		sc.register(selector, SelectionKey.OP_WRITE);
-		
-		String message = "Hello";
-		
-		this.send(sc, message.getBytes(), 0, message.getBytes().length);
+		sc.register(selector, SelectionKey.OP_READ);
 	}
 
 	/**
@@ -132,18 +128,6 @@ public class NioServer {
 	 */
 	private void handleConnect(SelectionKey key) throws IOException {
 		throw new Error("Unexpected connect");
-	}
-
-	/**
-	 * Handle data to write 
-	 * Assume data to write is in outBuffer
-	 * @param the key of the channel on which data can be sent
-	 */
-	private void handleWrite(SelectionKey key) throws IOException {
-		assert (skey != key);
-		assert (ssc != key.channel());
-		
-		this.wAutomata.handleWrite(key);
 	}
 
 	/**
