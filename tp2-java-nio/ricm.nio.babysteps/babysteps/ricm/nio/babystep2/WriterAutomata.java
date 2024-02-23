@@ -24,6 +24,7 @@ public class WriterAutomata {
 			key.interestOps(SelectionKey.OP_WRITE);
 			this.currentState = State.WRITE_LENGTH;
 			this.bb = ByteBuffer.allocate(4);
+			this.bb.rewind();
 			this.bb.putInt(msg.length);
 		}
 		byte[][] temp = new byte[this.pendingMsg.length+1][];

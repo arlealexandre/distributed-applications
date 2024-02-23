@@ -25,6 +25,7 @@ public class ReaderAutomata {
 				
 				n = sc.read(buffer);
 				System.out.println("Nb read for length = "+n);
+				System.out.println("Remaining = "+buffer.remaining());
 				
 				if (n == -1) {
 					key.cancel();
@@ -35,6 +36,7 @@ public class ReaderAutomata {
 				if (buffer.remaining()==0) {
 					buffer.rewind();
 					messageLength = buffer.getInt();
+					System.out.println("Length = "+messageLength);
 					buffer = ByteBuffer.allocate(messageLength);
 					currentState = State.READ_MESSAGE;
 				}
@@ -42,7 +44,7 @@ public class ReaderAutomata {
 				break;
 			case READ_MESSAGE:
 				n = sc.read(buffer);
-				
+				System.out.println("index buffer = "+buffer.remaining());
 				if (n == -1) {
 					key.cancel();
 					sc.close(); 

@@ -127,6 +127,10 @@ public class NioClient {
 
 		sc.finishConnect();
 		skey.interestOps(SelectionKey.OP_READ);
+		
+		// once connected, send a message to the server
+		digest = md5(first);
+		writerAutomata.sendMsg(first, key);
 
 	}
 
