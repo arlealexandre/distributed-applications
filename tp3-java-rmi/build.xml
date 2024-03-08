@@ -1,0 +1,53 @@
+<!-- !! DO NOT UPDATE THIS BUILD FILE !! -->
+<project name="distributed-applications" basedir=".">
+
+    <!-- Description -->
+    <description>Distributed applications - Practical work</description>
+
+    <!-- Properties -->
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+
+    <!-- Target: clean -->
+    <target name="clean"> 
+        <echo message="Cleaning ./build..."/>
+        <delete dir="${build}"/>
+    </target>
+
+    <!-- Target: init -->
+    <target name="init" depends="clean">
+        <echo message="Creating ./build directory..."/> 
+        <mkdir dir="${build}"/>
+    </target>
+
+    <!-- Target: compile -->
+    <target name="compile" depends="init">
+        <echo message="Compiling ./src directory..."/>
+        <javac srcdir="${src}" destdir="${build}">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Target: run BabystepServer -->
+    <target name="server" depends="compile">
+        <echo message="Running server program..."/>
+        <java classname="BabystepServer" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run BabystepClient -->
+    <target name="client" depends="compile">
+        <echo message="Running server program..."/>
+        <java classname="BabystepClient" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+</project>
