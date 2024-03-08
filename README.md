@@ -25,5 +25,5 @@ Basic file server using TCP.
 ## [Java NIO](https://github.com/arlealexandre/distributed-applications/tree/main/tp2-java-nio)
 Basic implementation of Java NIO.
 
-## [Chat Application](https://github.com/arlealexandre/distributed-applications/tree/main/tp2-java-rmi)
+## [Chat Application](https://github.com/arlealexandre/distributed-applications/tree/main/tp3-java-rmi)
 Basic chat application using Java RMI.
