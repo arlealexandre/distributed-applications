@@ -16,8 +16,8 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
 
     @Override
     public void connect(IParticipant p) throws Exception, RemoteException {
-        for (int i = 0; i < this.participants.size(); i++) {
-            if (this.participants.get(i) == p) {
+        for (IParticipant par : this.participants) {
+            if (par == p) {
                 throw new Exception("Already connected!");
             }
         }
@@ -43,9 +43,10 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
     @Override
     public String[] who() throws RemoteException {
         String[] participantsName = new String[this.participants.size()];
+        int index = 0;
 
-        for (int i = 0; i < this.participants.size(); i++) {
-            participantsName[i] = this.participants.get(i).name();
+        for (IParticipant par : this.participants) {
+            participantsName[index++] = par.name();
         }
 
         return participantsName;
@@ -53,8 +54,13 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
 
     @Override
     public void send(IParticipant p, String msg) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'send'");
+        for (IParticipant par : this.participants) {
+            if (par == p) {
+                for (IParticipant pa : this.participants) {
+                    pa.receive(p.name(), msg);
+                }
+            }
+        }
     }
 
     @Override
