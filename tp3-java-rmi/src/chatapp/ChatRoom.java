@@ -12,6 +12,7 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
     protected ChatRoom(String name) throws RemoteException {
         super();
         this.name = name;
+        this.participants = new ArrayList<>();
     }
 
     @Override

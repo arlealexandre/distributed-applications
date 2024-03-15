@@ -19,7 +19,7 @@ public class Participant extends UnicastRemoteObject implements IParticipant {
 
     @Override
     public void receive(String name, String msg) throws RemoteException {
-        System.out.println(name+": "+msg);
+        System.out.println(name+"> "+msg);
     }
     
 }

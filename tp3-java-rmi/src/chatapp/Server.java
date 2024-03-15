@@ -13,6 +13,7 @@ public class Server {
             chatRoom = new ChatRoom("Salon thé");
             registry = LocateRegistry.createRegistry(9999);
             registry.bind("chatRoom",chatRoom);
+            
         } catch (RemoteException | AlreadyBoundException e) {
             e.printStackTrace();
         }
