@@ -10,13 +10,13 @@ public class Server {
         
         Registry registry;
         try {
-            Wrapper chatRooms = new Wrapper();
+            IWrapper chatRooms = new Wrapper();
 
             registry = LocateRegistry.createRegistry(9999);
 
-            chatRooms.chatRooms.put("Salon thé", new ChatRoom("Salon thé"));
-            chatRooms.chatRooms.put("Salon café", new ChatRoom("Salon café"));
-            chatRooms.chatRooms.put("Salon bière", new ChatRoom("Salon bière"));
+            chatRooms.getChatRooms().put("Salon thé", new ChatRoom("Salon thé"));
+            chatRooms.getChatRooms().put("Salon café", new ChatRoom("Salon café"));
+            chatRooms.getChatRooms().put("Salon bière", new ChatRoom("Salon bière"));
 
             registry.bind("chatRooms",chatRooms);
         } catch (RemoteException | AlreadyBoundException e) {
