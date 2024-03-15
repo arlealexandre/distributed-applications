@@ -7,13 +7,18 @@ import java.rmi.registry.Registry;
 
 public class Server {
     public static void main(String[] args) {
-        IChatRoom chatRoom;
+        
         Registry registry;
         try {
-            chatRoom = new ChatRoom("Salon thé");
+            Wrapper chatRooms = new Wrapper();
+
             registry = LocateRegistry.createRegistry(9999);
-            registry.bind("chatRoom",chatRoom);
-            
+
+            chatRooms.chatRooms.put("Salon thé", new ChatRoom("Salon thé"));
+            chatRooms.chatRooms.put("Salon café", new ChatRoom("Salon café"));
+            chatRooms.chatRooms.put("Salon bière", new ChatRoom("Salon bière"));
+
+            registry.bind("chatRooms",chatRooms);
         } catch (RemoteException | AlreadyBoundException e) {
             e.printStackTrace();
         }
