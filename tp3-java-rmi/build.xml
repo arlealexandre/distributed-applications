@@ -31,9 +31,9 @@
     </target>
 
     <!-- Target: run BabystepServer -->
-    <target name="server" depends="compile">
+    <target name="babyserver" depends="compile">
         <echo message="Running server program..."/>
-        <java classname="BabystepServer" fork="true">
+        <java classname="babystep/BabystepServer" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
@@ -41,9 +41,29 @@
     </target>
 
     <!-- Target: run BabystepClient -->
-    <target name="client" depends="compile">
+    <target name="babyclient" depends="compile">
+        <echo message="Running client program..."/>
+        <java classname="babystep/BabystepClient" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+     <!-- Target: run Server -->
+    <target name="server" depends="compile">
         <echo message="Running server program..."/>
-        <java classname="BabystepClient" fork="true">
+        <java classname="chatapp/Server" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run Client -->
+    <target name="client" depends="compile">
+        <echo message="Running client program..."/>
+        <java classname="chatapp/Client" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>

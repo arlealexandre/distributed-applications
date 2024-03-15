@@ -1,0 +1,6 @@
+{
+    "java.project.sourcePaths": [
+        "tp1-file-server/src",
+        "tp3-java-rmi/src"
+    ]
+}
