@@ -38,11 +38,9 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
         for (int i = 0; i < this.exitedClient.length; i++) {
             if (this.exitedClient[i].equals(p)) {
                 if (this.lastMessageReadByExitedClient[i] != this.lastMessageSend) {
-                    //Envoyer tous les messages du dernier lu par le client jusqu'au dernier envoyer
                     for (int j = (this.previousMessages.length - 1) -this.lastMessageSend - this.lastMessageReadByExitedClient[i]; j < this.previousMessages.length; j++) {
                         p.receive(this.previousMessageSenders[j], this.previousMessages[j]);
                     }
-
                     if (i == 0) {
                         this.removeSavedMessages(this.lastMessageReadByExitedClient[1]-this.lastMessageReadByExitedClient[0]);
                     }
@@ -104,6 +102,7 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
         for (int i = 0; i < this.participants.size(); i++) {
             if (this.participants.get(i).equals(p)) {
                 this.participants.remove(i);
+                System.out.println("Removed");
                 removed = true;
             }
         }

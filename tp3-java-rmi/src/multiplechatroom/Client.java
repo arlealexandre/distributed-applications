@@ -10,39 +10,46 @@ public class Client {
 
     public static void main(String[] args) {
 
-        welcome();
+        
+            welcome();
 
-        Scanner sc = new Scanner(System.in);
-        String nameInput = getUsername(sc);
+            Scanner sc = new Scanner(System.in);
+            String nameInput = getUsername(sc);
 
-        try {
-            IParticipant participant = new Participant(nameInput);
+            boolean appOpen = true;
 
-            Registry registry = LocateRegistry.getRegistry("localhost", 9999);
-            IWrapper chatRoomsWrapper = (IWrapper) registry.lookup("chatRooms");
-            HashMap<String, IChatRoom> chatRooms = chatRoomsWrapper.getChatRooms();
-            HashMap<Integer, String> chatRoomsIndex = getIndexMap(chatRooms);
+            while(appOpen) {
+            try {
+                IParticipant participant = new Participant(nameInput);
 
-            String selectedRoomIndex = chooseChatRoom(chatRoomsIndex, sc);
+                Registry registry = LocateRegistry.getRegistry("localhost", 9999);
+                IWrapper chatRoomsWrapper = (IWrapper) registry.lookup("chatRooms");
+                HashMap<String, IChatRoom> chatRooms = chatRoomsWrapper.getChatRooms();
+                HashMap<Integer, String> chatRoomsIndex = getIndexMap(chatRooms);
 
-            IChatRoom selectedChatRoom = chatRooms.get(selectedRoomIndex);
+                String selectedRoomIndex = chooseChatRoom(chatRoomsIndex, sc);
+
+                IChatRoom selectedChatRoom = chatRooms.get(selectedRoomIndex);
 
 
-            selectedChatRoom.connect(participant);
-            System.out.println("Connected to chat room: " + selectedChatRoom.name());
+                selectedChatRoom.connect(participant);
+                System.out.println("Connected to chat room: " + selectedChatRoom.name());
 
-            String message;
-            System.out.println(participant.name() + "> ");
+                String message;
+                System.out.println(participant.name() + "> ");
 
-            do {
-                message = sc.nextLine();
-                selectedChatRoom.send(participant, message);
-            } while (message != "leave()");
+                do {
+                    message = sc.nextLine();
+                    selectedChatRoom.send(participant, message);
+                } while (!message.equals("leave()"));
 
-            sc.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+                selectedChatRoom.leave(participant);
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+        sc.close();
     }
 
     private static void welcome() {
