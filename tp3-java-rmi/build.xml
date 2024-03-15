@@ -51,7 +51,7 @@
     </target>
 
      <!-- Target: run Server -->
-    <target name="server" depends="compile">
+    <target name="chatserver" depends="compile">
         <echo message="Running server program..."/>
         <java classname="chatapp/Server" fork="true">
             <classpath>
@@ -61,9 +61,29 @@
     </target>
 
     <!-- Target: run Client -->
-    <target name="client" depends="compile">
+    <target name="chatclient" depends="compile">
         <echo message="Running client program..."/>
         <java classname="chatapp/Client" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+     <!-- Target: run Server -->
+    <target name="server" depends="compile">
+        <echo message="Running multiple chat room server program..."/>
+        <java classname="multiplechatroom/Server" fork="true">
+            <classpath>
+                <pathelement location="${build}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Target: run Client -->
+    <target name="client" depends="compile">
+        <echo message="Running multiple chat room client program..."/>
+        <java classname="multiplechatroom/Client" fork="true">
             <classpath>
                 <pathelement location="${build}"/>
             </classpath>
