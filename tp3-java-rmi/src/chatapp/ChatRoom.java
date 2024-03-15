@@ -18,7 +18,7 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
     @Override
     public void connect(IParticipant p) throws Exception, RemoteException {
         for (IParticipant par : this.participants) {
-            if (par == p) {
+            if (par.equals(p)) {
                 throw new Exception("Already connected!");
             }
         }
@@ -30,7 +30,7 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
 
         boolean removed = false;
         for (int i = 0; i < this.participants.size(); i++) {
-            if (this.participants.get(i) == p) {
+            if (this.participants.get(i).equals(p)) {
                 this.participants.remove(i);
                 removed = true;
             }
@@ -56,7 +56,7 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
     @Override
     public void send(IParticipant p, String msg) throws RemoteException {
         for (IParticipant par : this.participants) {
-            if (par == p) {
+            if (par.equals(p)) {
                 for (IParticipant pa : this.participants) {
                     pa.receive(p.name(), msg);
                 }

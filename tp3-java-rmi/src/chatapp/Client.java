@@ -16,17 +16,16 @@ public class Client {
 
         try {
             IParticipant participant = new Participant(nameInput);
-            /*Registry localRegistry = LocateRegistry.createRegistry(8888);
-            localRegistry.bind("participant", participant);*/
+
             Registry remoteRegistry = LocateRegistry.getRegistry("localhost", 9999);
             IChatRoom chatRoom = (IChatRoom) remoteRegistry.lookup("chatRoom");
             chatRoom.connect(participant);
             System.out.println("Connected to chat room: " + chatRoom.name());
 
             String message;
+            System.out.println(participant.name() + "> ");
 
             do {
-                System.out.println(participant.name() + "> ");
                 message = sc.nextLine();
                 chatRoom.send(participant, message);
             } while (message != "leave()");
