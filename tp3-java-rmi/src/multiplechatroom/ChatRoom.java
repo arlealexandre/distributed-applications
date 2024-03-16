@@ -8,10 +8,10 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
 
     String name;
     ArrayList<IParticipant> participants;
-    String[] previousMessages;
-    String[] previousMessageSenders;
-    IParticipant[] exitedClient;
-    int[] lastMessageReadByExitedClient;
+    ArrayList<String> previousMessages;
+    ArrayList<String> previousMessageSenders;
+    ArrayList<String> exitedClient;
+    ArrayList<Integer> lastMessageReadByExitedClient;
     
     int lastMessageSend;
 
@@ -19,10 +19,10 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
         super();
         this.name = name;
         this.participants = new ArrayList<>();
-        this.previousMessages = new String[0];
-        this.previousMessageSenders = new String[0];
-        this.lastMessageReadByExitedClient = new int[0];
-        this.exitedClient = new IParticipant[0];
+        this.previousMessages = new ArrayList<>();
+        this.previousMessageSenders = new ArrayList<>();
+        this.lastMessageReadByExitedClient = new ArrayList<>();
+        this.exitedClient = new ArrayList<>();
         this.lastMessageSend = 0;
     }
 
@@ -35,81 +35,48 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
         }
         this.participants.add(p);
 
-        for (int i = 0; i < this.exitedClient.length; i++) {
-            if (this.exitedClient[i].equals(p)) {
-                if (this.lastMessageReadByExitedClient[i] != this.lastMessageSend) {
-                    for (int j = (this.previousMessages.length - 1) -this.lastMessageSend - this.lastMessageReadByExitedClient[i]; j < this.previousMessages.length; j++) {
-                        p.receive(this.previousMessageSenders[j], this.previousMessages[j]);
+        for (int i = 0; i < this.exitedClient.size(); i++) {
+            if (this.exitedClient.get(i).equals(p.name())) {
+                if (this.lastMessageReadByExitedClient.get(i) != this.lastMessageSend) {
+                    for (int j = this.lastMessageReadByExitedClient.get(i) - this.lastMessageReadByExitedClient.get(0); j < this.previousMessages.size(); j++) {
+                        p.receive(this.previousMessageSenders.get(j), this.previousMessages.get(j));
                     }
                     if (i == 0) {
-                        this.removeSavedMessages(this.lastMessageReadByExitedClient[1]-this.lastMessageReadByExitedClient[0]);
+                        if (this.exitedClient.size() == 1) {
+                            this.previousMessages = new ArrayList<>();
+                            this.previousMessageSenders = new ArrayList<>();
+                        } else {
+                            this.removeSavedMessages(this.lastMessageReadByExitedClient.get(1)-this.lastMessageReadByExitedClient.get(0));
+                        }
                     }
-                    this.removeExited(i);
+                    this.lastMessageReadByExitedClient.remove(i);
+                    this.exitedClient.remove(i);
                 }
             }
         }
     }
 
     public void removeSavedMessages (int n) {
-        String[] tempMsg = new String[this.previousMessages.length - n];
-        String[] tempSen = new String[this.previousMessageSenders.length - n];
-
-        for (int i = n; i < this.previousMessages.length; i++) {
-            tempMsg[i-n] = this.previousMessages[i];
-            tempSen[i-n] = this.previousMessageSenders[i];
+        for (int i = 0; i < n; i++) {
+            this.previousMessages.remove(0);
+            this.previousMessageSenders.remove(0);
         }
-
-        this.previousMessageSenders = tempSen;
-        this.previousMessages = tempMsg;
-    }
-
-    public void removeExited (int client) {
-        int[] tempInt = new int[this.lastMessageReadByExitedClient.length-1];
-        IParticipant[] tempPart = new IParticipant[this.exitedClient.length-1];
-
-        int offset = 0;
-        for (int i = 0; i < this.exitedClient.length; i++) {
-            if (i == client) {
-                offset = 1;
-            } else {
-                tempInt[i-offset] = this.lastMessageReadByExitedClient[i];
-                tempPart[i-offset] = this.exitedClient[i];
-            }
-        }
-        this.lastMessageReadByExitedClient = tempInt;
-        this.exitedClient = tempPart;
-    }
-
-    public void updateLeave (IParticipant p) {
-        int[] tempInt = new int[this.lastMessageReadByExitedClient.length + 1];
-        IParticipant[] tempPart = new IParticipant[this.exitedClient.length + 1];
-
-        for (int i = 0; i < this.exitedClient.length; i++) {
-            tempInt[i] = this.lastMessageReadByExitedClient[i];
-            tempPart[i] = this.exitedClient[i];
-        }
-        tempInt[this.lastMessageReadByExitedClient.length] = this.lastMessageSend;
-        tempPart[this.exitedClient.length] = p;
-
-        this.lastMessageReadByExitedClient = tempInt;
-        this.exitedClient = tempPart;
     }
 
     @Override
     public void leave(IParticipant p) throws Exception, RemoteException {
-
         boolean removed = false;
         for (int i = 0; i < this.participants.size(); i++) {
             if (this.participants.get(i).equals(p)) {
                 this.participants.remove(i);
-                System.out.println("Removed");
                 removed = true;
             }
         }
         if (!removed) {
             throw new Exception("Not connected!");
         }
-        this.updateLeave(p);
+        this.lastMessageReadByExitedClient.add(this.lastMessageSend);
+        this.exitedClient.add(p.name());
     }
 
     @Override
@@ -124,21 +91,6 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
         return participantsName;
     }
 
-    public void updateSend (String msg, String client) {
-        String[] tempMsg = new String[this.previousMessages.length+1];
-        String[] tempSen = new String[this.previousMessageSenders.length+1];
-        for (int i = 0; i < this.previousMessageSenders.length; i++) {
-            tempMsg[i] = this.previousMessages[i];
-            tempSen[i] = this.previousMessageSenders[i];
-        }
-
-        tempMsg[this.previousMessages.length] = msg;
-        tempSen[this.previousMessageSenders.length] = client;
-
-        this.previousMessageSenders = tempSen;
-        this.previousMessages = tempMsg;
-    }
-
     @Override
     public void send(IParticipant p, String msg) throws RemoteException {
         for (IParticipant par : this.participants) {
@@ -149,7 +101,12 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
             }
         }
         this.lastMessageSend++;
-        updateSend(msg, p.name());
+
+        // We save the message if at least one person leaved
+        if (this.exitedClient.size() > 0) {
+            this.previousMessageSenders.add(p.name());
+            this.previousMessages.add(msg);
+        }
     }
 
     @Override
