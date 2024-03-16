@@ -1,9 +1,10 @@
 package multiplechatroom;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class Participant extends UnicastRemoteObject implements IParticipant {
+public class Participant extends UnicastRemoteObject implements IParticipant, Serializable {
 
     private String name;
 

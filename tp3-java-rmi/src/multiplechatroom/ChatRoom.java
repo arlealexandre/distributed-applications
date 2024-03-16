@@ -1,13 +1,14 @@
 package multiplechatroom;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
-public class ChatRoom extends UnicastRemoteObject implements IChatRoom {
+public class ChatRoom extends UnicastRemoteObject implements IChatRoom, Serializable {
 
     String name;
-    ArrayList<IParticipant> participants;
+    public ArrayList<IParticipant> participants;
     ArrayList<String> previousMessages;
     ArrayList<String> previousMessageSenders;
     ArrayList<String> exitedClient;

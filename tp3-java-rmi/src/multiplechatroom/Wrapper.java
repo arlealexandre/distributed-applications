@@ -1,10 +1,11 @@
 package multiplechatroom;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 
-public class Wrapper extends UnicastRemoteObject implements IWrapper {
+public class Wrapper extends UnicastRemoteObject implements IWrapper, Serializable {
 
     public HashMap<String, IChatRoom> chatRooms;
 

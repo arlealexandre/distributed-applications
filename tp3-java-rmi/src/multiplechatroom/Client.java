@@ -32,16 +32,28 @@ public class Client {
                 IChatRoom selectedChatRoom = chatRooms.get(selectedRoomIndex);
 
 
-                selectedChatRoom.connect(participant);
                 System.out.println("Connected to chat room: " + selectedChatRoom.name());
+                selectedChatRoom.connect(participant);
 
                 String message;
                 System.out.println(participant.name() + "> ");
 
                 do {
                     message = sc.nextLine();
-                    selectedChatRoom.send(participant, message);
-                } while (!message.equals("leave()"));
+                    try {
+                        selectedChatRoom.send(participant, message);
+                    } catch(Exception e) {
+                        System.out.println("Error: failed to interact with server on sending message");
+                        System.out.println("New connection attempt in 5 seconds");
+                        Thread.sleep(7000);
+                        System.out.println("Connecting to server...");
+                        try {
+                            selectedChatRoom.connect(participant);
+                        } catch (Exception e2) {
+                            System.out.println("Failed to connect with server");
+                        }
+                    }
+                } while (!message.equals("exit()"));
 
                 selectedChatRoom.leave(participant);
                 
