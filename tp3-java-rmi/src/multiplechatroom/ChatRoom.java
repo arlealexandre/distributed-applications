@@ -13,7 +13,6 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom, Serializ
     ArrayList<String> previousMessageSenders;
     ArrayList<String> exitedClient;
     ArrayList<Integer> lastMessageReadByExitedClient;
-    
     int lastMessageSend;
 
     protected ChatRoom(String name) throws RemoteException {
@@ -29,24 +28,28 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom, Serializ
 
     @Override
     public void connect(IParticipant p) throws Exception, RemoteException {
+        // Check if client is not already connected
         for (IParticipant par : this.participants) {
             if (par.equals(p)) {
                 throw new Exception("Already connected!");
             }
         }
+
         this.participants.add(p);
 
+        //Send all the messages missed if the client had already connected to this room
         for (int i = 0; i < this.exitedClient.size(); i++) {
-            if (this.exitedClient.get(i).equals(p.name())) {
-                if (this.lastMessageReadByExitedClient.get(i) != this.lastMessageSend) {
+            if (this.exitedClient.get(i).equals(p.name())) { // If he indeed leaved
+                if (this.lastMessageReadByExitedClient.get(i) != this.lastMessageSend) { // If he missed at least one message
                     for (int j = this.lastMessageReadByExitedClient.get(i) - this.lastMessageReadByExitedClient.get(0); j < this.previousMessages.size(); j++) {
                         p.receive(this.previousMessageSenders.get(j), this.previousMessages.get(j));
                     }
-                    if (i == 0) {
-                        if (this.exitedClient.size() == 1) {
+                    if (i == 0) { // If it was the oldest person to leave
+                        if (this.exitedClient.size() == 1) { // And the only one
                             this.previousMessages = new ArrayList<>();
                             this.previousMessageSenders = new ArrayList<>();
-                        } else {
+                        } else { // Not the only one
+                            //We can update the saved message to optimize memory usage
                             this.removeSavedMessages(this.lastMessageReadByExitedClient.get(1)-this.lastMessageReadByExitedClient.get(0));
                         }
                     }
@@ -93,14 +96,30 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom, Serializ
     }
 
     @Override
-    public void send(IParticipant p, String msg) throws RemoteException {
+    public void send(IParticipant p, String msg) throws Exception {
+        boolean senderPresent = false;
         for (IParticipant par : this.participants) {
             if (par.equals(p)) {
-                for (IParticipant pa : this.participants) {
-                    pa.receive(p.name(), msg);
-                }
+                senderPresent = true;
             }
         }
+
+        if (!senderPresent) {
+            throw new Exception("Not connected!");
+        }
+
+        ArrayList<IParticipant> deadParticipant = new ArrayList<>();
+        for (IParticipant pa : this.participants) {
+            try {
+                pa.receive(p.name(), msg);
+            } catch (Exception e) {
+                deadParticipant.add(pa);
+            }
+        }
+        for (IParticipant pa : deadParticipant) {
+            this.participants.remove(pa);
+        }
+
         this.lastMessageSend++;
 
         // We save the message if at least one person leaved
@@ -114,5 +133,4 @@ public class ChatRoom extends UnicastRemoteObject implements IChatRoom, Serializ
     public String name() throws RemoteException {
         return this.name;
     }
-
 }

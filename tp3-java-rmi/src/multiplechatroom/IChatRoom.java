@@ -8,5 +8,5 @@ public interface IChatRoom extends Remote {
     void connect(IParticipant p) throws Exception, RemoteException;
     void leave(IParticipant p) throws Exception, RemoteException;
     String[] who() throws RemoteException;
-    void send(IParticipant p, String msg) throws RemoteException;
+    void send(IParticipant p, String msg) throws RemoteException, Exception;
 }

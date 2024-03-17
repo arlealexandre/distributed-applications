@@ -38,8 +38,11 @@ public class Client {
                 String message;
                 System.out.println(participant.name() + "> ");
 
+                boolean disconnected = false;
+
                 do {
                     message = sc.nextLine();
+                    
                     try {
                         selectedChatRoom.send(participant, message);
                     } catch(Exception e) {
@@ -48,20 +51,33 @@ public class Client {
                         Thread.sleep(7000);
                         System.out.println("Connecting to server...");
                         try {
+                            registry = LocateRegistry.getRegistry("localhost", 9999);
+                            chatRoomsWrapper = (IWrapper) registry.lookup("chatRooms");
+                            chatRooms = chatRoomsWrapper.getChatRooms();
+                            chatRoomsIndex = getIndexMap(chatRooms);
+                            selectedRoomIndex = chooseChatRoom(chatRoomsIndex, sc);
+                            selectedChatRoom = chatRooms.get(selectedRoomIndex);
+                            System.out.println("Connected to chat room: " + selectedChatRoom.name());
                             selectedChatRoom.connect(participant);
+                            System.out.println(participant.name() + "> ");
                         } catch (Exception e2) {
                             System.out.println("Failed to connect with server");
+                            disconnected = true;
+                            appOpen = false;
                         }
                     }
-                } while (!message.equals("exit()"));
+                } while (!message.equals("exit()") && !disconnected);
 
-                selectedChatRoom.leave(participant);
+                if (!disconnected) {
+                    selectedChatRoom.leave(participant);
+                }
                 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         sc.close();
+        System.exit(0);
     }
 
     private static void welcome() {
