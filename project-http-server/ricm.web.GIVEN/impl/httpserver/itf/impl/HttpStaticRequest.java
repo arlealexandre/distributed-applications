@@ -2,9 +2,11 @@ package httpserver.itf.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
 import httpserver.itf.HttpRequest;
@@ -34,19 +36,23 @@ public class HttpStaticRequest extends HttpRequest {
 			} else {
 				resp.setReplyError(404, "not found");
 			}
+			
 		} else {
 			resp.setReplyError(405, "method not allowed");
 		}
 	}
 
+	/**
+	 * Write entire file into PrintStream
+	 * @param f
+	 * @param ps
+	 * @throws IOException
+	 */
 	private void buildBody(File f, PrintStream ps) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(f));
-		String line = reader.readLine();
-		while (line != null) {
-			ps.println(line);
-			line = reader.readLine();
-		}
-		reader.close();
+		byte[] bytes = new byte[(int) f.length()];
+		FileInputStream fis = new FileInputStream(f);
+		fis.read(bytes);
+		ps.writeBytes(bytes);
 	}
 
 }
