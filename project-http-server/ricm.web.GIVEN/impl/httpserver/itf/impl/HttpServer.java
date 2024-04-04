@@ -48,16 +48,12 @@ public class HttpServer {
 		return m_folder;
 	}
 	
-	
-
 	public HttpRicmlet getInstance(String clsname)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, MalformedURLException, 
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		throw new Error("No Support for Ricmlets");
+		Class<?> c = Class.forName(clsname);
+		return (HttpRicmlet) c.getDeclaredConstructor().newInstance();
 	}
-
-
-
 
 	/*
 	 * Reads a request on the given input stream and returns the corresponding HttpRequest object
@@ -70,7 +66,11 @@ public class HttpServer {
 		String method = parseline.nextToken().toUpperCase(); 
 		String ressname = parseline.nextToken();
 		if (method.equals("GET")) {
-			request = new HttpStaticRequest(this, method, ressname);
+			if (ressname.startsWith("/ricmlets")) { // if request is ricmlet
+				request = new HttpRicmletRequestImpl(this, method, ressname, br);
+			} else { // otherwise request is considered static
+				request = new HttpStaticRequest(this, method, ressname);
+			}
 		} else 
 			request = new UnknownRequest(this, method, ressname);
 		return request;
@@ -81,7 +81,11 @@ public class HttpServer {
 	 * Returns an HttpResponse object associated to the given HttpRequest object
 	 */
 	public HttpResponse getResponse(HttpRequest req, PrintStream ps) {
-		return new HttpResponseImpl(this, req, ps);
+		if (req instanceof HttpRicmletRequestImpl) {
+			return new HttpRicmletResponseImpl(this, req, ps);
+		} else {
+			return new HttpResponseImpl(this, req, ps);
+		}
 	}
 
 

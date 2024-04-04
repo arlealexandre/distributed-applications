@@ -2,16 +2,16 @@ package httpserver.itf.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-
 import httpserver.itf.HttpResponse;
+import httpserver.itf.HttpRicmlet;
 import httpserver.itf.HttpRicmletRequest;
+import httpserver.itf.HttpRicmletResponse;
 import httpserver.itf.HttpSession;
 
 public class HttpRicmletRequestImpl extends HttpRicmletRequest {
-
+	
 	public HttpRicmletRequestImpl(HttpServer hs, String method, String ressname, BufferedReader br) throws IOException {
 		super(hs, method, ressname, br);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -34,8 +34,17 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 
 	@Override
 	public void process(HttpResponse resp) throws Exception {
-		// TODO Auto-generated method stub
-		
+		if (m_method.equals("GET")) {
+			try {
+	            HttpRicmlet ricmlet = m_hs.getInstance(m_ressname);
+	            ricmlet.doGet(this, (HttpRicmletResponse) resp);
+	        } catch (Exception e) {
+	            resp.setReplyError(404, "Ricmlet not found");
+	        }
+			
+		} else {
+			resp.setReplyError(405, "method not allowed");
+		}
 	}
 
 }
