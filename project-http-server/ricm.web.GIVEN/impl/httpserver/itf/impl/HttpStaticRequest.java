@@ -27,14 +27,25 @@ public class HttpStaticRequest extends HttpRequest {
 		if (m_method.equals("GET")) {
 
 			File f = new File(m_hs.getFolder().getName() + m_ressname);
-			if (f.exists() && f.isFile()) {
+			if (f.exists() && f.isFile()) { // if ressource exists and type file
 				resp.setReplyOk();
 				resp.setContentType(getContentType(m_ressname));
 				resp.setContentLength((int) f.length());
 				PrintStream ps = resp.beginBody();
 				buildBody(f, ps);
-			} else {
-				resp.setReplyError(404, "not found");
+			} else if (f.exists() && f.isDirectory()) { // if ressource exists but directory
+				File indexFile = new File(f.getPath()+"/"+DEFAULT_FILE); // we are seeking to return index.html file if exists
+				if (indexFile.exists()) {
+					resp.setReplyOk();
+					resp.setContentType(getContentType(DEFAULT_FILE));
+					resp.setContentLength((int) indexFile.length());
+					PrintStream ps = resp.beginBody();
+					buildBody(indexFile, ps);
+				} else {
+					resp.setReplyError(404, "index.html not found");
+				}
+			} else { 
+				resp.setReplyError(404, "ressource not found");
 			}
 			
 		} else {
