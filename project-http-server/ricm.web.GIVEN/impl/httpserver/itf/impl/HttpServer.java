@@ -53,8 +53,15 @@ public class HttpServer {
 	public HttpRicmlet getInstance(String clsname)
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, MalformedURLException, 
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		Class<?> c = Class.forName(clsname);
-		return (HttpRicmlet) c.getDeclaredConstructor().newInstance();
+		HttpRicmlet ricmlet = ricmlets.get(clsname); // we first check if instance exists, search in hashmap
+		if (ricmlet!=null) {
+			return ricmlet;
+		} else { // if not exists we create new instance
+			Class<?> c = Class.forName(clsname);
+			HttpRicmlet newRicmlet = (HttpRicmlet) c.getDeclaredConstructor().newInstance();
+			ricmlets.put(clsname, newRicmlet);
+			return newRicmlet;
+		}
 	}
 
 	/*
