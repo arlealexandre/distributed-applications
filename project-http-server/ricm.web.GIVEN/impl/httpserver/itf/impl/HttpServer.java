@@ -32,7 +32,7 @@ public class HttpServer {
 	private ServerSocket m_ssoc;
 	private HashMap<String, HttpRicmlet> ricmlets = new HashMap<>();
 	private HashMap<String, String> cookies = new HashMap<>();
-	private ArrayList<Session> clients = new ArrayList<>();
+	public static ArrayList<Session> clients = new ArrayList<>();
 
 	protected HttpServer(int port, String folderName) {
 		m_port = port;
@@ -49,7 +49,7 @@ public class HttpServer {
 	}
 	
 	public void addSession(Session s) {
-		this.clients.add(s);
+		HttpServer.clients.add(s);
 	}
 
 	public File getFolder() {
@@ -72,14 +72,14 @@ public class HttpServer {
 	}
 	
 	public ArrayList<Session> getClients() {
-		return this.clients;
+		return HttpServer.clients;
 	}
 
 	public HashMap<String, String> getCookies() {
 		return this.cookies;
 	}
 
-	private void setCookiesFromHeader(BufferedReader br) throws IOException {
+	private void setCookiesFromHeader(BufferedReader br) throws Exception {
 		String startline = br.readLine();
 		while (!startline.startsWith("Cookie") && startline.length() != 0) {
 			startline = br.readLine();
@@ -87,23 +87,32 @@ public class HttpServer {
 		if (startline.length() != 0) {
 			String parsedCookieLine = startline.replace("Cookie: ", "").replace(" ", "");
 
-			HashMap<String, String> newCookies = new HashMap<>();
 			String[] splitedCookieLine = parsedCookieLine.split(";");
 			for (String cookies : splitedCookieLine) {
 				String[] cookie = cookies.split("=");
 				this.cookies.put(cookie[0], cookie[1]);
 			}
 		}
-		long id = Clock.systemDefaultZone().millis();
-		this.cookies.put("session-id", Long.toString(id));
+		
+		boolean present = false;
+		for (Session s : HttpServer.clients) {
+			if (s.getId().equals(this.cookies.get("session-id"))) {
+				present = true;
+			}
+		}
+		
+		if (!present) {
+			long id = Clock.systemDefaultZone().millis();
+			this.cookies.put("session-id", Long.toString(id));
+			HttpServer.clients.add(new Session(Long.toString(id)));
+		}
 	}
 
 	/*
 	 * Reads a request on the given input stream and returns the corresponding
 	 * HttpRequest object
 	 */
-	public HttpRequest getRequest(BufferedReader br) throws IOException {
-		
+	public HttpRequest getRequest(BufferedReader br) throws Exception {
 		HttpRequest request = null;
 		String startline = br.readLine();
 		StringTokenizer parseline = new StringTokenizer(startline);

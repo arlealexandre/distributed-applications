@@ -20,8 +20,8 @@ public class CountBySessionRicmlet implements httpserver.itf.HttpRicmlet{
 		HttpSession s = req.getSession();
 		Integer c = (Integer) s.getValue("counter");
 		if (c == null)
-			s.setValue("counter", new Integer(0));
-		else s.setValue("counter", new Integer(c.intValue()+1));
+			s.setValue("counter", 0);
+		else s.setValue("counter", c.intValue()+1);
 		resp.setReplyOk();
 		resp.setContentType("text/html");
 		PrintStream ps = resp.beginBody();

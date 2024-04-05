@@ -19,7 +19,7 @@ public abstract class HttpRicmletRequest extends HttpRequest {
 	 * Returns the session object attached to the current client
 	 * Create a session if no session exist
 	 */
-	abstract public HttpSession getSession() throws Exception;
+	abstract public HttpSession getSession();
 	
 	/*
 	 * Returns the value for the argument of the given name

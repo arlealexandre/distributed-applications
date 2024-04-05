@@ -2,52 +2,57 @@ package httpserver.itf.impl;
 
 import java.time.Clock;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import httpserver.itf.HttpSession;
 
 public class Session implements HttpSession {
-	String id;
-	HashMap<String, Object> values;
-	long lastAction;
+	private static final long MAX_INACTIVITY_TIME = 20000; // 20sec inactivity max
+	
+	private String id;
+	private HashMap<String, Object> values;
+	private Timer inactivityTimer;
 	
 	Session (String id) {
 		this.id = id;
 		this.values = new HashMap<>();
-		this.lastAction = Clock.systemDefaultZone().millis() / 1000;
+		this.inactivityTimer = new Timer();
+		inactivityTimer.schedule(new InactivityCleaner(), MAX_INACTIVITY_TIME);
+	}
+	
+	private void resetInactivityTimer() {
+        inactivityTimer.cancel();
+        inactivityTimer = new Timer();
+        inactivityTimer.schedule(new InactivityCleaner(), MAX_INACTIVITY_TIME);
+    }
+
+	@Override
+	public String getId() {
+		this.resetInactivityTimer();
+		return this.id;
 	}
 
 	@Override
-	public String getId() throws Exception {
-		long currentAction = Clock.systemDefaultZone().millis() / 1000;
-		if (currentAction - this.lastAction < 20) {
-			this.lastAction = currentAction;
-			return this.id;
-		}
-		throw new Exception ("Session expired");
+	public Object getValue(String key) {
+		this.resetInactivityTimer();
+		return this.values.get(key);
 	}
 
 	@Override
-	public Object getValue(String key) throws Exception {
-		long currentAction = Clock.systemDefaultZone().millis() / 1000;
-		if (currentAction - this.lastAction < 20) {
-			this.lastAction = currentAction;
-			return this.values.get(key);
-		}
-		throw new Exception ("Session expired");
-	}
-
-	@Override
-	public void setValue(String key, Object value) throws Exception {
-		long currentAction = Clock.systemDefaultZone().millis() / 1000;
-		if (currentAction - this.lastAction < 20) {
-			this.lastAction = currentAction;
-			if (this.values.containsKey(key)) {
-				this.values.replace(key, value);
-			} else {
-				this.values.put(key, value);
-			}
+	public void setValue(String key, Object value) {
+		this.resetInactivityTimer();
+		if (this.values.containsKey(key)) {
+			this.values.replace(key, value);
 		} else {
-			throw new Exception ("Session expired");
+			this.values.put(key, value);
 		}
 	}
+	
+	private class InactivityCleaner extends TimerTask {
+        @Override
+        public void run() {
+            HttpServer.clients.remove(Session.this);
+        }
+    }
 }

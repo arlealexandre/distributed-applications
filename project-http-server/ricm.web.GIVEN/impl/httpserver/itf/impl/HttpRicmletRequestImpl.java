@@ -17,7 +17,7 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 	}
 
 	@Override
-	public HttpSession getSession() throws Exception {
+	public HttpSession getSession() {
 		String id = this.getCookie("session-id");
 		if (id != null) {
 			for (Session s : this.m_hs.getClients()) {
