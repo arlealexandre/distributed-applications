@@ -23,7 +23,7 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 	@Override
 	public String getArg(String name) {
 		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
@@ -36,7 +36,9 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 	public void process(HttpResponse resp) throws Exception {
 		if (m_method.equals("GET")) {
 			try {
-	            HttpRicmlet ricmlet = m_hs.getInstance(m_ressname);
+				String[] splitedRessname = m_ressname.split("/");
+				String classPath = splitedRessname[splitedRessname.length-2] + '.' + splitedRessname[splitedRessname.length-1];
+	            HttpRicmlet ricmlet = m_hs.getInstance(classPath);
 	            ricmlet.doGet(this, (HttpRicmletResponse) resp);
 	        } catch (Exception e) {
 	            resp.setReplyError(404, "Ricmlet not found");
