@@ -67,7 +67,7 @@ public class HttpServer {
 		return this.cookies;
 	}
 
-	private void getCookiesFromHeader(BufferedReader br) throws IOException {
+	private void setCookiesFromHeader(BufferedReader br) throws IOException {
 		String startline = br.readLine();
 		while (!startline.startsWith("Cookie")) {
 			startline = br.readLine();
@@ -104,7 +104,7 @@ public class HttpServer {
 		}
 		
 		// update map of cookies
-		getCookiesFromHeader(br);
+		setCookiesFromHeader(br);
 
 		return request;
 	}
