@@ -2,6 +2,8 @@ package httpserver.itf.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.Clock;
+
 import httpserver.itf.HttpResponse;
 import httpserver.itf.HttpRicmlet;
 import httpserver.itf.HttpRicmletRequest;
@@ -15,9 +17,18 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 	}
 
 	@Override
-	public HttpSession getSession() {
-		// TODO Auto-generated method stub
-		return null;
+	public HttpSession getSession() throws Exception {
+		String id = this.getCookie("session-id");
+		if (id != null) {
+			for (Session s : this.m_hs.getClients()) {
+				if (id.equals(s.getId())) {
+					return s;
+				}
+			}
+		}
+		Session temp = new Session(Long.toString(Clock.systemDefaultZone().millis()));
+		this.m_hs.addSession(temp);
+		return temp;
 	}
 
 	@Override

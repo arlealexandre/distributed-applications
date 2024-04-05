@@ -20,5 +20,5 @@ public interface HttpRicmlet {
 	 * @param resp: the HttpRicmletResponse object that contains the response the ricmlet sends to the client
 	 * @throws IOException if an input or output error is detected when the ricmlet handles the GET request
 	 */
-	public void doGet(HttpRicmletRequest req, HttpRicmletResponse resp) throws IOException ;
+	public void doGet(HttpRicmletRequest req, HttpRicmletResponse resp) throws IOException, Exception ;
 }

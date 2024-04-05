@@ -8,6 +8,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Clock;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -30,6 +32,7 @@ public class HttpServer {
 	private ServerSocket m_ssoc;
 	private HashMap<String, HttpRicmlet> ricmlets = new HashMap<>();
 	private HashMap<String, String> cookies = new HashMap<>();
+	private ArrayList<Session> clients = new ArrayList<>();
 
 	protected HttpServer(int port, String folderName) {
 		m_port = port;
@@ -44,6 +47,10 @@ public class HttpServer {
 			System.exit(1);
 		}
 	}
+	
+	public void addSession(Session s) {
+		this.clients.add(s);
+	}
 
 	public File getFolder() {
 		return m_folder;
@@ -53,6 +60,7 @@ public class HttpServer {
 			throws InstantiationException, IllegalAccessException, ClassNotFoundException, MalformedURLException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		HttpRicmlet ricmlet = ricmlets.get(clsname); // we first check if instance exists, search in hashmap
+		
 		if (ricmlet != null) {
 			return ricmlet;
 		} else { // if not exists we create new instance
@@ -62,6 +70,10 @@ public class HttpServer {
 			return newRicmlet;
 		}
 	}
+	
+	public ArrayList<Session> getClients() {
+		return this.clients;
+	}
 
 	public HashMap<String, String> getCookies() {
 		return this.cookies;
@@ -69,18 +81,21 @@ public class HttpServer {
 
 	private void setCookiesFromHeader(BufferedReader br) throws IOException {
 		String startline = br.readLine();
-		while (!startline.startsWith("Cookie")) {
+		while (!startline.startsWith("Cookie") && startline.length() != 0) {
 			startline = br.readLine();
 		}
-		String parsedCookieLine = startline.replace("Cookie: ", "").replace(" ", "");
+		if (startline.length() != 0) {
+			String parsedCookieLine = startline.replace("Cookie: ", "").replace(" ", "");
 
-		HashMap<String, String> newCookies = new HashMap<>();
-		String[] splitedCookieLine = parsedCookieLine.split(";");
-		for (String cookies : splitedCookieLine) {
-			String[] cookie = cookies.split("=");
-			this.cookies.put(cookie[0], cookie[1]);
+			HashMap<String, String> newCookies = new HashMap<>();
+			String[] splitedCookieLine = parsedCookieLine.split(";");
+			for (String cookies : splitedCookieLine) {
+				String[] cookie = cookies.split("=");
+				this.cookies.put(cookie[0], cookie[1]);
+			}
 		}
-
+		long id = Clock.systemDefaultZone().millis();
+		this.cookies.put("session-id", Long.toString(id));
 	}
 
 	/*
@@ -88,14 +103,16 @@ public class HttpServer {
 	 * HttpRequest object
 	 */
 	public HttpRequest getRequest(BufferedReader br) throws IOException {
+		
 		HttpRequest request = null;
 		String startline = br.readLine();
 		StringTokenizer parseline = new StringTokenizer(startline);
 		String method = parseline.nextToken().toUpperCase();
 		String ressname = parseline.nextToken();
 		if (method.equals("GET")) {
-			if (ressname.startsWith("/ricmlets")) { // if request is ricmlet
+			if (ressname.startsWith("/ricmlets")) { // if request is ricmle
 				request = new HttpRicmletRequestImpl(this, method, ressname, br);
+				
 			} else { // otherwise request is considered static
 				request = new HttpStaticRequest(this, method, ressname);
 			}
@@ -105,7 +122,7 @@ public class HttpServer {
 		
 		// update map of cookies
 		setCookiesFromHeader(br);
-
+		
 		return request;
 	}
 
