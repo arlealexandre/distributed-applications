@@ -31,6 +31,7 @@ public class HttpServer {
 	private File m_folder;  // default folder for accessing static resources (files)
 	private ServerSocket m_ssoc;
 	private HashMap<String, HttpRicmlet> ricmlets = new HashMap<>();
+	private HashMap<String, String> cookies = new HashMap<>();
 
 	protected HttpServer(int port, String folderName) {
 		m_port = port;
@@ -63,13 +64,35 @@ public class HttpServer {
 			return newRicmlet;
 		}
 	}
-
+	
+	public HashMap<String, String> getCookies() {
+		return this.cookies;
+	}
+	
+	private HashMap<String, String> getCookiesFromHeader(BufferedReader br) throws IOException {
+		String startline = br.readLine();
+		while (!startline.startsWith("Cookie")) {
+			startline = br.readLine();
+		}
+		String parsedCookieLine = startline.replace("Cookie: ", "").replace(" ", "");
+		if (parsedCookieLine.isEmpty() || parsedCookieLine.isBlank()) {
+			return null;
+		} else {
+			HashMap<String, String> newCookies = new HashMap<>();
+			String[] splitedCookieLine = parsedCookieLine.split(";");
+			for (String cookies : splitedCookieLine) {
+				String[] cookie = cookies.split("=");
+				newCookies.put(cookie[0], cookie[1]);
+			}
+			return newCookies;
+		}
+	}
+		
 	/*
 	 * Reads a request on the given input stream and returns the corresponding HttpRequest object
 	 */
 	public HttpRequest getRequest(BufferedReader br) throws IOException {
 		HttpRequest request = null;
-		
 		String startline = br.readLine();
 		StringTokenizer parseline = new StringTokenizer(startline);
 		String method = parseline.nextToken().toUpperCase(); 
@@ -80,8 +103,12 @@ public class HttpServer {
 			} else { // otherwise request is considered static
 				request = new HttpStaticRequest(this, method, ressname);
 			}
-		} else 
+		} else {
 			request = new UnknownRequest(this, method, ressname);
+		}
+		
+		cookies = getCookiesFromHeader(br);
+		
 		return request;
 	}
 

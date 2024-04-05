@@ -28,8 +28,7 @@ public class HttpRicmletRequestImpl extends HttpRicmletRequest {
 
 	@Override
 	public String getCookie(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		return m_hs.getCookies().get(name);
 	}
 
 	@Override
